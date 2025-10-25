@@ -2,6 +2,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import { taskRoutes } from '../src/routes/tasks.js';
 import { userRoutes } from '../src/routes/user.js';
+import { statsRoutes } from '../src/routes/stats.js';
 
 let fastifyInstance: FastifyInstance | null = null;
 
@@ -30,6 +31,7 @@ async function getFastifyInstance() {
   // Register routes
   await fastify.register(taskRoutes, { prefix: '/api' });
   await fastify.register(userRoutes, { prefix: '/api' });
+  await fastify.register(statsRoutes, { prefix: '/api' });
 
   // Prepare fastify
   await fastify.ready();

@@ -91,12 +91,21 @@ export async function taskRoutes(fastify: FastifyInstance) {
       }
 
       try {
+        const updateData: any = {};
+
+        if (title !== undefined) {
+          updateData.title = title;
+        }
+
+        if (done !== undefined) {
+          updateData.done = done;
+          // Set completedAt when task is marked as done
+          updateData.completedAt = done ? new Date() : null;
+        }
+
         const task = await prisma.task.update({
           where: { id: taskId },
-          data: {
-            ...(title !== undefined && { title }),
-            ...(done !== undefined && { done }),
-          },
+          data: updateData,
         });
 
         return { task };
