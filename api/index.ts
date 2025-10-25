@@ -1,33 +1,45 @@
-import Fastify from 'fastify';
+import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
-import { prisma } from '../src/prisma.js';
 import { taskRoutes } from '../src/routes/tasks.js';
 import { userRoutes } from '../src/routes/user.js';
 
-const fastify = Fastify({
-  logger: false,
-});
+let fastifyInstance: FastifyInstance | null = null;
 
-// Register CORS
-await fastify.register(cors, {
-  origin: true,
-  credentials: true,
-});
+async function getFastifyInstance() {
+  if (fastifyInstance) {
+    return fastifyInstance;
+  }
 
-// Health check
-fastify.get('/health', async () => {
-  return { status: 'ok', timestamp: new Date().toISOString() };
-});
+  const fastify = Fastify({
+    logger: false,
+  });
 
-// Register routes
-fastify.register(taskRoutes, { prefix: '/api' });
-fastify.register(userRoutes, { prefix: '/api' });
+  // Register CORS
+  await fastify.register(cors, {
+    origin: true,
+    credentials: true,
+  });
 
-// Prepare fastify
-await fastify.ready();
+  // Health check
+  fastify.get('/health', async () => {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  });
+
+  // Register routes
+  await fastify.register(taskRoutes, { prefix: '/api' });
+  await fastify.register(userRoutes, { prefix: '/api' });
+
+  // Prepare fastify
+  await fastify.ready();
+
+  fastifyInstance = fastify;
+  return fastify;
+}
 
 // Export handler for Vercel
 export default async (req: any, res: any) => {
+  const fastify = await getFastifyInstance();
+
   // Convert Vercel request to Fastify format
   const url = req.url || '/';
   const method = req.method || 'GET';
