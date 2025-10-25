@@ -18,6 +18,8 @@ async function getFastifyInstance() {
   await fastify.register(cors, {
     origin: true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Health check
